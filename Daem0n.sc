@@ -8,7 +8,7 @@ Daem0n {
 	classvar unleashButton;
 	classvar <>period;
 
-	*version { ^"9 August 2014"; }
+	*version { ^"22 August 2014"; }
 
 	*execute { |x|
 		thisProcess.interpreter.executeFile(x);
