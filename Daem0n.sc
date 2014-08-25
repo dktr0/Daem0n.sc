@@ -6,19 +6,22 @@ Daem0n {
 	classvar <>unleashed;
 	classvar window;
 	classvar unleashButton;
+	classvar <>period;
 
-	*version { ^"29 June 2014"; }
+	*version { ^"9 August 2014"; }
 
 	*execute { |x|
 		thisProcess.interpreter.executeFile(x);
 	}
 
 	*summon {
+		| initialPeriod = 0.25 |
+		period = initialPeriod;
 		if(not(Main.versionAtLeast(3,7)), {
 				"*** ALERT: using old SuperCollider version ***".postln;
 		});
 		opQueue = [];
-		Tdef(\daem0n, { loop { Daem0n.daem0n; 0.5.wait;}}).play(quant:1);
+		Tdef(\daem0n, { loop { Daem0n.daem0n; period.wait;}}).play(quant:1);
 		window = Window.new("Daem0n",Rect(200,200,100,50));
 		unleashButton = Button.new(window,Rect(10,10,80,30)).action = { |x|
 			switch(x.value,
@@ -29,6 +32,7 @@ Daem0n {
 		window.front;
 		Document.current.text = Document.current.text ++ "\n";
 		Daem0n.unleash;
+		^"summoned";
 	}
 
 	*unleash {
@@ -97,11 +101,9 @@ Daem0n {
 		var text = Document.current.text;
 		if(currentOp[2].isNil,{ // first dequeue action on this op
 			var a,b,c,t;
-			currentOp.postln;
 			a = text.find(currentOp[1]) + currentOp[1].size;
 			currentOp.add(text.findAll("\n").select({|x|x>a}).at(0) - 1);
 			currentOp.add(currentOp[2] - a + 1);
-			currentOp.postln;
 		});
 		text.removeAt(currentOp[2]);
 		Document.current.text = text;
@@ -213,6 +215,16 @@ Daem0n {
 	*functionOp {
 		currentOp[1].value;
 		currentOp = nil;
+	}
+
+	*spell {
+		|path|
+		var ops = File(path,"r").readAllString.split(Char.nl);
+		ops.collect( { |op|
+			("appending: " + op).postln;
+			Daem0n.append(op);
+		} );
+		^((ops.size).asString ++ " ops");
 	}
 
 	*daem0n {
